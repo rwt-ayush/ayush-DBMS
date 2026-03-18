@@ -1,0 +1,31 @@
+{% extends 'placement/base.html' %}
+{% block title %}Company Login — PlaceBloom{% endblock %}
+{% block page_title %}Company Login{% endblock %}
+{% block page_sub %}Sign in to manage jobs and applicants{% endblock %}
+{% block ncl %}active{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;margin:20px auto;align-items:start;">
+  <div style="background:linear-gradient(160deg,var(--peach),var(--sky));border-radius:24px;padding:44px 36px;border:1.5px solid var(--border);">
+    <div style="width:60px;height:60px;background:rgba(255,255,255,.7);border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--coral2);margin-bottom:22px;box-shadow:var(--shadow);"><i class="fas fa-building"></i></div>
+    <h2 style="font-size:26px;font-weight:800;margin-bottom:10px;color:var(--text);">Company Portal</h2>
+    <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:26px;">Post jobs, review candidates, and make hiring decisions from your company dashboard.</p>
+    <div style="background:rgba(255,255,255,.6);border-radius:14px;padding:16px 18px;border:1.5px solid rgba(255,255,255,.8);">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;">New company?</div>
+      <a href="{% url 'placement:company_register' %}" style="color:var(--coral2);font-weight:700;font-size:13px;text-decoration:none;">Register your company →</a>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head" style="background:var(--bg);"><span class="card-title">Sign In</span></div>
+    <div class="card-body">
+      {% if msg %}<div style="background:#ffe8e6;border:1.5px solid #ffcbb8;border-radius:10px;padding:11px 14px;margin-bottom:16px;color:var(--coral2);font-size:13px;font-weight:600;"><i class="fas fa-exclamation-circle"></i> {{ msg }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="field"><label>{{ field.label }}</label>{{ field }}{% for e in field.errors %}<div style="color:var(--coral2);font-size:12px;margin-top:4px;font-weight:600;">{{ e }}</div>{% endfor %}</div>
+        {% endfor %}
+        <button type="submit" class="btn btn-peach btn-block mt4"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'placement/base.html' %}
+{% block title %}Companies — PlaceBloom{% endblock %}
+{% block page_title %}Browse Companies{% endblock %}
+{% block page_sub %}Explore recruiting companies and open roles{% endblock %}
+{% block nco %}active{% endblock %}
+{% block content %}
+<div style="display:grid;grid-template-columns:280px 1fr;gap:20px;">
+  <div class="card" style="height:fit-content;">
+    <div class="card-head" style="background:linear-gradient(135deg,var(--sky),var(--peach));border-radius:var(--r) var(--r) 0 0;"><span class="card-title">🏢 Companies</span></div>
+    <div style="padding:10px;">
+      {% for company in companies %}
+      <a href="?company_id={{ company.company_id }}" style="display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:12px;text-decoration:none;margin-bottom:4px;transition:all .15s;{% if selected_company_id == company.company_id %}background:linear-gradient(135deg,var(--sky),var(--peach));border:1.5px solid var(--border2);{% endif %}">
+        <div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ company.name|slice:":2"|upper }}</div>
+        <div><div class="fw7 sm" style="color:var(--text);">{{ company.name }}</div><div class="xs muted">{{ company.jobs.count }} job{{ company.jobs.count|pluralize }}</div></div>
+      </a>
+      {% empty %}<div class="empty" style="border:none;padding:20px;"><i class="fas fa-building"></i><p>No companies.</p></div>{% endfor %}
+    </div>
+  </div>
+  <div>
+    {% if selected_company %}
+    <div class="card mb4" style="background:linear-gradient(135deg,var(--peach),var(--sky));border-color:var(--border2);">
+      <div class="card-body"><div class="flex aic g3" style="flex-wrap:wrap;">
+        <div class="av av-lg" style="background:linear-gradient(135deg,var(--blue),var(--lav2));color:#fff;">{{ selected_company.name|slice:":2"|upper }}</div>
+        <div><div style="font-size:20px;font-weight:800;">{{ selected_company.name }}</div><div class="muted sm">{{ selected_company.description|default:"No description." }}</div>
+        <div class="flex g2" style="margin-top:8px;"><span class="badge badge-blue">{{ selected_company.jobs.count }} Jobs</span><span class="badge badge-lav">{{ applications|length }} Applications</span></div></div>
+      </div></div>
+    </div>
+    <div class="card mb4">
+      <div class="card-head"><span class="card-title">Open Positions</span></div>
+      {% if selected_company.jobs.all %}<div class="tbl-wrap"><table>
+        <thead><tr><th>Position</th><th>Max Spots</th><th>Action</th></tr></thead>
+        <tbody>{% for job in selected_company.jobs.all %}<tr>
+          <td class="fw7 sm">{{ job.position }}</td>
+          <td class="mono fw7" style="color:var(--blue2);">{{ job.max_applicants }}</td>
+          <td>{% if request.session.student_id %}<a href="{% url 'placement:application_create_job' job.job_id %}" class="btn btn-primary btn-xs"><i class="fas fa-paper-plane"></i> Apply</a>{% else %}<a href="{% url 'placement:student_login' %}" class="btn btn-soft btn-xs"><i class="fas fa-lock"></i> Login</a>{% endif %}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+      {% else %}<div class="empty" style="border:none;padding:24px;"><i class="fas fa-briefcase"></i><p>No jobs posted.</p></div>{% endif %}
+    </div>
+    {% if applications %}
+    <div class="card">
+      <div class="card-head"><span class="card-title">Applications</span></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Student</th><th>Position</th><th>Status</th></tr></thead>
+        <tbody>{% for app in applications %}<tr>
+          <td class="fw7 sm">{{ app.student.name }}</td><td class="sm">{{ app.job.position }}</td>
+          <td>{% if app.status == 'accepted' %}<span class="badge badge-accepted">Accepted</span>{% elif app.status == 'rejected' %}<span class="badge badge-rejected">Rejected</span>{% else %}<span class="badge badge-pending">Pending</span>{% endif %}</td>
+        </tr>{% endfor %}</tbody>
+      </table></div>
+    </div>{% endif %}
+    {% else %}<div class="card"><div class="empty" style="padding:70px;"><i class="fas fa-mouse-pointer"></i><p>Select a company from the left to view details.</p></div></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

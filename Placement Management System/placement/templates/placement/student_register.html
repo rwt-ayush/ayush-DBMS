@@ -1,0 +1,29 @@
+{% extends 'placement/base.html' %}
+{% block title %}Register — PlaceBloom{% endblock %}
+{% block page_title %}Student Registration{% endblock %}
+{% block page_sub %}Create your student account{% endblock %}
+{% block nsr %}active{% endblock %}
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-head" style="background:linear-gradient(135deg,var(--sky),var(--peach));border-radius:var(--r) var(--r) 0 0;">
+      <span class="card-title"><i class="fas fa-user-plus" style="color:var(--blue2);margin-right:8px;"></i>Create Student Account</span>
+    </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="fgrid">
+          {% for field in form %}
+          <div class="field"><label>{{ field.label }}</label>{{ field }}{% if field.help_text %}<div style="font-size:11px;color:var(--text3);margin-top:4px;">{{ field.help_text }}</div>{% endif %}{% for e in field.errors %}<div style="color:var(--coral2);font-size:12px;margin-top:4px;font-weight:600;">{{ e }}</div>{% endfor %}</div>
+          {% endfor %}
+        </div>
+        <hr class="divider">
+        <div class="flex g2">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create Account</button>
+          <a href="{% url 'placement:student_login' %}" class="btn btn-ghost">Already registered?</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'placement/base.html' %}
+{% block title %}{{ student.name }} — PlaceBloom{% endblock %}
+{% block page_title %}{{ student.name }}{% endblock %}
+{% block page_sub %}{{ student.roll_no }} · Student Dashboard{% endblock %}
+{% block topbar_right %}<a href="{% url 'placement:logout' %}" class="btn btn-ghost btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--sky),var(--peach));border-radius:22px;padding:24px 28px;margin-bottom:22px;border:1.5px solid var(--border);display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+  <div class="av av-lg" style="background:linear-gradient(135deg,var(--blue),var(--lav2));color:#fff;box-shadow:0 6px 18px rgba(74,144,217,.35);">{{ student.name|slice:":2"|upper }}</div>
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:21px;font-weight:800;margin-bottom:4px;color:var(--text);">{{ student.name }}</div>
+    <div class="muted sm">{{ student.email }} &nbsp;·&nbsp; <span class="mono">{{ student.roll_no }}</span></div>
+    {% if student.skills %}<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;">{% for sk in student.skills.split %}<span class="pill">{{ sk }}</span>{% endfor %}</div>{% endif %}
+  </div>
+</div>
+<div class="stats">
+  <div class="stat stat-blue"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-briefcase"></i></div><div class="stat-val">{{ jobs.count }}</div><div class="stat-lbl">Available Jobs</div></div>
+  <div class="stat stat-peach"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-paper-plane"></i></div><div class="stat-val">{{ total_applied }}</div><div class="stat-lbl">Applied</div></div>
+  <div class="stat stat-mint"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-val">{{ accepted_count }}</div><div class="stat-lbl">Accepted</div></div>
+  <div class="stat stat-lav"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-val">{{ pending_count }}</div><div class="stat-lbl">Pending</div></div>
+</div>
+<div class="g2c">
+  <div class="card">
+    <div class="card-head"><span class="card-title">🔍 Available Jobs</span><span class="badge badge-blue">{{ jobs.count }}</span></div>
+    {% if jobs %}
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Position</th><th>Company</th><th></th></tr></thead>
+      <tbody>{% for job in jobs %}<tr>
+        <td><div class="fw7 sm">{{ job.position }}</div>{% if job.section %}<div class="xs muted">{{ job.section.section_name }}</div>{% endif %}</td>
+        <td><div class="flex aic g2"><div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ job.company.name|slice:":2"|upper }}</div><span class="sm">{{ job.company.name }}</span></div></td>
+        <td><a href="{% url 'placement:application_create_job' job.job_id %}" class="btn btn-primary btn-xs"><i class="fas fa-paper-plane"></i> Apply</a></td>
+      </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty"><i class="fas fa-briefcase"></i><p>No jobs available yet.</p></div>{% endif %}
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">📄 Your Applications</span><span class="badge badge-lav">{{ total_applied }}</span></div>
+    {% if applications %}
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Position</th><th>Company</th><th>Status</th></tr></thead>
+      <tbody>{% for app in applications %}<tr>
+        <td class="fw7 sm">{{ app.job.position }}</td>
+        <td class="sm">{{ app.job.company.name }}</td>
+        <td>{% if app.status == 'accepted' %}<span class="badge badge-accepted">Accepted</span>{% elif app.status == 'rejected' %}<span class="badge badge-rejected">Rejected</span>{% else %}<span class="badge badge-pending">Pending</span>{% endif %}</td>
+      </tr>{% endfor %}</tbody>
+    </table></div>
+    {% else %}<div class="empty"><i class="fas fa-file-alt"></i><p>No applications yet.</p></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

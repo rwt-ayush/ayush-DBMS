@@ -1,0 +1,62 @@
+{% extends 'placement/base.html' %}
+{% block title %}{{ company.name }} — PlaceBloom{% endblock %}
+{% block page_title %}{{ company.name }}{% endblock %}
+{% block page_sub %}Company Dashboard{% endblock %}
+{% block topbar_right %}
+  <a href="{% url 'placement:job_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Post Job</a>
+  <a href="{% url 'placement:logout' %}" class="btn btn-ghost btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</a>
+{% endblock %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--peach),var(--sky));border-radius:22px;padding:24px 28px;margin-bottom:22px;border:1.5px solid var(--border);display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+  <div class="av av-lg" style="background:linear-gradient(135deg,var(--coral),#ff8a65);color:#fff;box-shadow:0 6px 18px rgba(255,112,67,.3);">{{ company.name|slice:":2"|upper }}</div>
+  <div style="flex:1;">
+    <div style="font-size:21px;font-weight:800;margin-bottom:4px;color:var(--text);">{{ company.name }}</div>
+    <div class="muted sm">{{ jobs.count }} job{{ jobs.count|pluralize }} posted &nbsp;·&nbsp; {{ applications.count }} application{{ applications.count|pluralize }}</div>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat stat-peach"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-briefcase"></i></div><div class="stat-val">{{ jobs.count }}</div><div class="stat-lbl">Jobs Posted</div></div>
+  <div class="stat stat-blue"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-val">{{ applications.count }}</div><div class="stat-lbl">Applicants</div></div>
+  <div class="stat stat-lav"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-clock"></i></div><div class="stat-val">{{ apps_by_status.pending }}</div><div class="stat-lbl">Pending</div></div>
+  <div class="stat stat-mint"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-val">{{ apps_by_status.accepted }}</div><div class="stat-lbl">Accepted</div></div>
+  <div class="stat stat-rose"><div class="stat-blob"></div><div class="stat-icon"><i class="fas fa-times-circle"></i></div><div class="stat-val">{{ apps_by_status.rejected }}</div><div class="stat-lbl">Rejected</div></div>
+</div>
+<div class="g2c">
+  <div class="card">
+    <div class="card-head"><span class="card-title">📊 Job Performance</span><a href="{% url 'placement:job_create' %}" class="btn btn-peach btn-xs"><i class="fas fa-plus"></i> New Job</a></div>
+    {% if job_stats %}
+    <div class="card-body" style="padding:16px;">{% for stat in job_stats %}
+      <div style="background:linear-gradient(135deg,var(--peach),var(--sky));border-radius:14px;padding:14px 16px;margin-bottom:12px;border:1.5px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div><div class="fw7 sm">{{ stat.job.position }}</div>{% if stat.job.section %}<div class="xs muted">{{ stat.job.section.section_name }}</div>{% endif %}</div>
+          <span class="badge badge-lav">{{ stat.ratio }}</span>
+        </div>
+        <div class="prog"><div class="prog-f" style="width:{{ stat.fill_percent }}%;"></div></div>
+        <div class="flex" style="justify-content:space-between;margin-top:6px;"><span class="xs muted">{{ stat.applied }} applied</span><span class="xs muted">{{ stat.fill_percent }}% filled</span></div>
+      </div>{% endfor %}
+    </div>
+    {% else %}<div class="empty"><i class="fas fa-briefcase"></i><p>No jobs yet.</p><a href="{% url 'placement:job_create' %}" class="btn btn-peach btn-sm">Post First Job</a></div>{% endif %}
+  </div>
+  <div class="card">
+    <div class="card-head"><span class="card-title">📋 Applications</span></div>
+    {% if applications %}
+    <div style="max-height:480px;overflow-y:auto;">{% for app in applications %}
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="flex aic g2">
+          <div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ app.student.name|slice:":2"|upper }}</div>
+          <div><div class="fw7 sm">{{ app.student.name }}</div><div class="xs muted">{{ app.job.position }} · {{ app.applied_at|date:"M d, Y" }}</div></div>
+        </div>
+        <div class="flex aic g2">
+          {% if app.status == 'accepted' %}<span class="badge badge-accepted">Accepted</span>
+          {% elif app.status == 'rejected' %}<span class="badge badge-rejected">Rejected</span>
+          {% else %}<span class="badge badge-pending">Pending</span>
+            <a href="{% url 'placement:company_application_action' app.app_id 'accept' %}" class="btn btn-success btn-xs"><i class="fas fa-check"></i></a>
+            <a href="{% url 'placement:company_application_action' app.app_id 'reject' %}" class="btn btn-danger btn-xs"><i class="fas fa-times"></i></a>
+          {% endif %}
+        </div>
+      </div>{% endfor %}
+    </div>
+    {% else %}<div class="empty"><i class="fas fa-file-alt"></i><p>No applications yet.</p></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

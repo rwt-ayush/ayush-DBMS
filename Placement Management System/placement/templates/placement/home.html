@@ -1,0 +1,126 @@
+{% extends 'placement/base.html' %}
+{% block title %}Dashboard — PlaceBloom{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Welcome to PlaceBloom · Campus Placement Management{% endblock %}
+{% block nh %}active{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<div style="background:linear-gradient(135deg,var(--sky) 0%,var(--peach2) 100%);border:1.5px solid var(--border);border-radius:22px;padding:44px 48px;margin-bottom:24px;position:relative;overflow:hidden;text-align:center;">
+  <div style="position:absolute;top:-70px;left:-50px;width:240px;height:240px;background:radial-gradient(circle,rgba(46,134,222,.15),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+  <div style="position:absolute;bottom:-60px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,94,58,.12),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+  <div style="position:absolute;top:20px;right:80px;width:130px;height:130px;background:radial-gradient(circle,rgba(139,110,245,.1),transparent 70%);border-radius:50%;pointer-events:none;"></div>
+  <div style="position:relative;max-width:620px;margin:0 auto;">
+    <!-- live badge -->
+    <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(46,134,222,.12);border:1.5px solid rgba(46,134,222,.25);border-radius:20px;padding:5px 15px;margin-bottom:20px;">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 7px var(--mint);animation:blink 2s infinite;"></span>
+      <span style="font-size:11px;font-weight:700;color:var(--blue2);letter-spacing:.07em;text-transform:uppercase;">Live Platform</span>
+    </div>
+    <!-- heading -->
+    <h1 style="font-size:38px;font-weight:800;line-height:1.1;margin-bottom:14px;color:var(--text);letter-spacing:-.5px;">
+      Campus Placement<br>
+      <span style="background:linear-gradient(135deg,var(--blue2),var(--lav2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Management System</span>
+    </h1>
+    <!-- description -->
+    <p style="font-size:15.5px;color:var(--text2);line-height:1.75;max-width:500px;margin:0 auto 34px;font-weight:500;">
+      One platform to manage students, companies, job postings and the entire campus recruitment workflow — seamlessly.
+    </p>
+    <!-- 2×2 button grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:430px;margin:0 auto;">
+      <a href="{% url 'placement:student_login' %}" class="btn btn-soft" style="justify-content:center;padding:14px 16px;border-radius:14px;font-size:13.5px;font-weight:700;flex-direction:column;gap:6px;height:74px;">
+        <i class="fas fa-sign-in-alt" style="font-size:20px;color:var(--blue2);"></i>
+        <span>Student Login</span>
+      </a>
+      <a href="{% url 'placement:student_register' %}" class="btn btn-primary" style="justify-content:center;padding:14px 16px;border-radius:14px;font-size:13.5px;font-weight:700;flex-direction:column;gap:6px;height:74px;">
+        <i class="fas fa-user-graduate" style="font-size:20px;"></i>
+        <span>Student Register</span>
+      </a>
+      <a href="{% url 'placement:company_login' %}" class="btn btn-peach" style="justify-content:center;padding:14px 16px;border-radius:14px;font-size:13.5px;font-weight:700;flex-direction:column;gap:6px;height:74px;">
+        <i class="fas fa-building" style="font-size:20px;"></i>
+        <span>Company Login</span>
+      </a>
+      <a href="{% url 'placement:company_register' %}" class="btn btn-ghost" style="justify-content:center;padding:14px 16px;border-radius:14px;font-size:13.5px;font-weight:700;flex-direction:column;gap:6px;height:74px;">
+        <i class="fas fa-plus-circle" style="font-size:20px;color:var(--coral2);"></i>
+        <span style="color:var(--coral2);">Company Register</span>
+      </a>
+    </div>
+    <div style="margin-top:18px;">
+      <a href="{% url 'admin:index' %}" style="font-size:12px;color:var(--text3);text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;opacity:.7;transition:opacity .2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.7">
+        <i class="fas fa-shield-alt"></i> Admin Panel
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats — icon style like screenshot -->
+<div class="stats">
+  <div class="stat stat-blue">
+    <div class="stat-bar"></div>
+    <div class="stat-icon"><i class="fas fa-user-graduate"></i></div>
+    <div>
+      <div class="stat-val">{{ student_count }}</div>
+      <div class="stat-lbl">Students Registered</div>
+    </div>
+  </div>
+  <div class="stat stat-peach">
+    <div class="stat-bar"></div>
+    <div class="stat-icon"><i class="fas fa-briefcase"></i></div>
+    <div>
+      <div class="stat-val">{{ job_count }}</div>
+      <div class="stat-lbl">Open Jobs</div>
+    </div>
+  </div>
+  <div class="stat stat-mint">
+    <div class="stat-bar"></div>
+    <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+    <div>
+      <div class="stat-val">{{ application_count }}</div>
+      <div class="stat-lbl">Applications</div>
+    </div>
+  </div>
+  <div class="stat stat-lav">
+    <div class="stat-bar"></div>
+    <div class="stat-icon"><i class="fas fa-building"></i></div>
+    <div>
+      <div class="stat-val">{{ company_job_summary|length }}</div>
+      <div class="stat-lbl">Companies</div>
+    </div>
+  </div>
+</div>
+
+<!-- Company table -->
+{% if company_job_summary %}
+<div class="card">
+  <div class="card-head ch-blue">
+    <span class="card-title" style="color:var(--blue2);"><i class="fas fa-building" style="margin-right:8px;"></i>Recruiting Companies</span>
+    <a href="{% url 'placement:companies' %}" class="btn btn-ghost btn-xs">View All <i class="fas fa-arrow-right"></i></a>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Company</th><th>Open Roles</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for item in company_job_summary %}
+        <tr>
+          <td>
+            <div class="flex aic g2">
+              <div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach2));color:var(--blue2);">{{ item.company.name|slice:":2"|upper }}</div>
+              <div>
+                <div class="fw7 sm">{{ item.company.name }}</div>
+                <div class="xs muted">{{ item.company.description|default:""|truncatechars:40 }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-blue"><i class="fas fa-briefcase" style="font-size:9px;"></i> {{ item.job_count }} job{{ item.job_count|pluralize }}</span></td>
+          <td><span class="badge badge-accepted"><i class="fas fa-check-circle" style="font-size:9px;"></i> Recruiting</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<style>
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+</style>
+{% endblock %}

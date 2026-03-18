@@ -1,0 +1,31 @@
+{% extends 'placement/base.html' %}
+{% block title %}Apply — PlaceBloom{% endblock %}
+{% block page_title %}Apply for Job{% endblock %}
+{% block topbar_right %}<a href="{% url 'placement:student_dashboard' %}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-left"></i> Back</a>{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:0 auto;"><div class="card">
+  <div class="card-head" style="background:linear-gradient(135deg,var(--sky),var(--peach));border-radius:var(--r) var(--r) 0 0;"><span class="card-title"><i class="fas fa-paper-plane" style="color:var(--blue2);margin-right:8px;"></i>Job Application</span></div>
+  <div class="card-body">
+    {% if error %}<div style="background:#ffe8e6;border:1.5px solid #ffcbb8;border-radius:10px;padding:11px 14px;margin-bottom:16px;color:var(--coral2);font-size:13px;font-weight:600;"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>{% endif %}
+    {% if job %}
+    <div style="background:linear-gradient(135deg,var(--sky),var(--peach));border-radius:14px;padding:18px;margin-bottom:20px;border:1.5px solid var(--border);">
+      <div style="font-size:11px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Application Summary</div>
+      <div style="display:grid;gap:8px;">
+        <div class="flex" style="justify-content:space-between;"><span class="muted sm">Position</span><span class="fw7 sm">{{ job.position }}</span></div>
+        <div class="flex" style="justify-content:space-between;"><span class="muted sm">Company</span><span class="fw7 sm">{{ job.company.name }}</span></div>
+        <div class="flex" style="justify-content:space-between;"><span class="muted sm">Student</span><span class="fw7 sm">{{ student.name }}</span></div>
+        <div class="flex" style="justify-content:space-between;"><span class="muted sm">Roll No</span><span class="mono sm">{{ student.roll_no }}</span></div>
+      </div>
+    </div>
+    <form method="post" class="flex g2">{% csrf_token %}
+      <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;"><i class="fas fa-paper-plane"></i> Confirm & Apply</button>
+      <a href="{% url 'placement:student_dashboard' %}" class="btn btn-ghost">Cancel</a>
+    </form>
+    {% else %}
+    <form method="post">{% csrf_token %}
+      {% for field in form %}<div class="field"><label>{{ field.label }}</label>{{ field }}{% for e in field.errors %}<div style="color:var(--coral2);font-size:12px;margin-top:4px;">{{ e }}</div>{% endfor %}</div>{% endfor %}
+      <div class="flex g2 mt4"><button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Submit</button><a href="{% url 'placement:application_list' %}" class="btn btn-ghost">Cancel</a></div>
+    </form>{% endif %}
+  </div>
+</div></div>
+{% endblock %}

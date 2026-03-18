@@ -1,0 +1,21 @@
+{% extends 'placement/base.html' %}
+{% block title %}Students — PlaceBloom{% endblock %}
+{% block page_title %}All Students{% endblock %}
+{% block page_sub %}Registered student directory{% endblock %}
+{% block nslist %}active{% endblock %}
+{% block topbar_right %}<a href="{% url 'placement:student_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Student</a>{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="card-head"><span class="card-title">👥 {{ students|length }} Student{{ students|length|pluralize }}</span></div>
+  <div class="tbl-wrap">{% if students %}<table>
+    <thead><tr><th>#</th><th>Student</th><th>Roll No</th><th>Email</th><th>Skills</th></tr></thead>
+    <tbody>{% for s in students %}<tr>
+      <td class="mono muted">{{ forloop.counter }}</td>
+      <td><div class="flex aic g2"><div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ s.name|slice:":2"|upper }}</div><span class="fw7 sm">{{ s.name }}</span></div></td>
+      <td><span class="mono pill">{{ s.roll_no }}</span></td>
+      <td class="sm muted">{{ s.email }}</td>
+      <td>{% if s.skills %}<div class="flex" style="flex-wrap:wrap;gap:4px;">{% for sk in s.skills.split|slice:":3" %}<span class="pill">{{ sk }}</span>{% endfor %}</div>{% else %}<span class="muted xs">—</span>{% endif %}</td>
+    </tr>{% endfor %}</tbody>
+  </table>{% else %}<div class="empty"><i class="fas fa-users"></i><p>No students yet.</p></div>{% endif %}</div>
+</div>
+{% endblock %}

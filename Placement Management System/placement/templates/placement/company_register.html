@@ -1,0 +1,29 @@
+{% extends 'placement/base.html' %}
+{% block title %}Register Company — PlaceBloom{% endblock %}
+{% block page_title %}Company Registration{% endblock %}
+{% block page_sub %}Register your company on PlaceBloom{% endblock %}
+{% block ncr %}active{% endblock %}
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-head" style="background:linear-gradient(135deg,var(--peach),var(--sky));border-radius:var(--r) var(--r) 0 0;">
+      <span class="card-title"><i class="fas fa-building" style="color:var(--coral2);margin-right:8px;"></i>Register Company</span>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="fgrid">
+          {% for field in form %}
+          <div class="field"><label>{{ field.label }}</label>{{ field }}{% for e in field.errors %}<div style="color:var(--coral2);font-size:12px;margin-top:4px;font-weight:600;">{{ e }}</div>{% endfor %}</div>
+          {% endfor %}
+        </div>
+        <hr class="divider">
+        <div class="flex g2">
+          <button type="submit" class="btn btn-peach"><i class="fas fa-building"></i> Register Company</button>
+          <a href="{% url 'placement:company_login' %}" class="btn btn-ghost">Already registered?</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
