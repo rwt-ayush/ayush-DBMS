@@ -4,6 +4,9 @@
 
 ## 🗄️ Database Creation
 
+##Django uses its own ORM (Object Relational Mapper) instead of raw SQL mainly to make development easier, safer, and faste
+##Here are those and its raw equivalent queries which I used to convert into django orm for better usability
+
 ### 🔹 Student Table
 
 ```python
