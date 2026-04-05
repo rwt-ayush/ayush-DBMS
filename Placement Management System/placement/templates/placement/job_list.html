@@ -15,7 +15,7 @@
       <td><div class="flex aic g2"><div class="av av-sm" style="background:linear-gradient(135deg,var(--peach),var(--sky));color:var(--coral2);">{{ job.company_name|slice:":2"|upper }}</div><span class="sm">{{ job.company_name }}</span></div></td>
       <td>{% if job.section_name %}<span class="pill">{{ job.section_name }}</span>{% else %}<span class="muted xs">—</span>{% endif %}</td>
       <td class="mono fw7" style="color:var(--blue2);">{{ job.max_applicants }}</td>
-      <td><span class="badge badge-accepted">Open</span></td>
+      <td>{% if job.applicant_count >= job.max_applicants %}<span class="badge badge-rejected">Full</span>{% else %}<span class="badge badge-accepted">Open</span>{% endif %}<span class="xs muted" style="margin-left:4px;">{{ job.applicant_count }}/{{ job.max_applicants }}</span></td>
     </tr>{% endfor %}</tbody>
   </table>{% else %}<div class="empty"><i class="fas fa-clipboard-list"></i><p>No jobs yet.</p></div>{% endif %}</div>
 </div>
