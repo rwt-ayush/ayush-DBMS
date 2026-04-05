@@ -212,7 +212,13 @@ def student_create(request):
 
 def job_list(request):
     _log_reset()
-    jobs = _rows_to_querylist(raw_fetchall(f"SELECT * FROM {T_JOB} ORDER BY job_id DESC"))
+    jobs = _rows_to_querylist(raw_fetchall(f"""
+        SELECT j.*, c.name AS company_name, ps.section_name
+        FROM {T_JOB} j
+        INNER JOIN {T_COMPANY} c ON j.company_id = c.company_id
+        LEFT JOIN {T_SECTION} ps ON j.section_id = ps.section_id
+        ORDER BY j.job_id DESC
+    """))
     return render(request, 'placement/job_list.html', _ctx({'jobs': jobs}))
 
 def job_create(request):
