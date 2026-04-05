@@ -174,9 +174,31 @@ def student_dashboard(request):
     if not student_row:
         raise Http404("Student not found")
     student = DictObj(student_row)
-    jobs         = _rows_to_querylist(raw_fetchall(f"SELECT * FROM {T_JOB}"))
-    applications = _rows_to_querylist(raw_fetchall(f"SELECT * FROM {T_APPLICATION} WHERE student_id = %s", [student.student_id]))
-    return render(request, 'placement/student_dashboard.html', _ctx({'student': student, 'jobs': jobs, 'applications': applications, 'total_applied': len(applications), 'accepted_count': sum(1 for a in applications if a.status == 'accepted'), 'pending_count': sum(1 for a in applications if a.status == 'pending'), 'rejected_count': sum(1 for a in applications if a.status == 'rejected')}))
+    jobs = _rows_to_querylist(raw_fetchall(f"""
+        SELECT j.*, c.name AS company_name, ps.section_name
+        FROM {T_JOB} j
+        INNER JOIN {T_COMPANY} c ON j.company_id = c.company_id
+        LEFT JOIN {T_SECTION} ps ON j.section_id = ps.section_id
+        ORDER BY j.job_id DESC
+    """))
+    applications = _rows_to_querylist(raw_fetchall(f"""
+        SELECT a.*, j.position AS job_position,
+               c.name AS company_name
+        FROM {T_APPLICATION} a
+        INNER JOIN {T_JOB} j ON a.job_id = j.job_id
+        INNER JOIN {T_COMPANY} c ON j.company_id = c.company_id
+        WHERE a.student_id = %s
+        ORDER BY a.applied_at DESC
+    """, [student.student_id]))
+    return render(request, 'placement/student_dashboard.html', _ctx({
+        'student': student,
+        'jobs': jobs,
+        'applications': applications,
+        'total_applied': len(applications),
+        'accepted_count': sum(1 for a in applications if a.status == 'accepted'),
+        'pending_count':  sum(1 for a in applications if a.status == 'pending'),
+        'rejected_count': sum(1 for a in applications if a.status == 'rejected'),
+    }))
 
 def company_dashboard(request):
     _log_reset()
