@@ -71,6 +71,8 @@ class QueryList(list):
         return len(self)
 
 def _rows_to_querylist(rows):
+    for i in QueryList(DictObj(r) for r in rows):
+        print((i.name))
     return QueryList(DictObj(r) for r in rows)
 
 def home(request):
@@ -99,7 +101,16 @@ def companies(request, company_id=None):
     if selected_company_id is None and companies:
         selected_company_id = companies[0].company_id
     selected = next((c for c in companies if c.company_id == selected_company_id), None)
-    applications = _rows_to_querylist(raw_fetchall(f"SELECT a.* FROM {T_APPLICATION} a INNER JOIN {T_JOB} j ON a.job_id = j.job_id WHERE j.company_id = %s", [selected.company_id])) if selected else QueryList()
+    applications = _rows_to_querylist(raw_fetchall(f"""
+            SELECT 
+                a.*, 
+                s.name, 
+                j.position 
+            FROM {T_APPLICATION} a
+            INNER JOIN {T_STUDENT} s ON a.student_id = s.student_id
+            INNER JOIN {T_JOB} j ON a.job_id = j.job_id
+            WHERE j.company_id = %s
+        """, [selected.company_id])) if selected else QueryList()
     return render(request, 'placement/companies.html', _ctx({'companies': companies, 'selected_company': selected, 'applications': applications, 'selected_company_id': selected_company_id}))
 
 def student_register(request):
@@ -240,6 +251,7 @@ def application_list(request):
     SELECT
         a.app_id,
         s.name AS student,
+        s.roll_no as roll_no,
         j.position AS position,
         c.name AS company,
         a.applied_at,
