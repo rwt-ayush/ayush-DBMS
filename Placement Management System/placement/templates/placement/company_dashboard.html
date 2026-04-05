@@ -43,8 +43,8 @@
     <div style="max-height:480px;overflow-y:auto;">{% for app in applications %}
       <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
         <div class="flex aic g2">
-          <div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ app.student.name|slice:":2"|upper }}</div>
-          <div><div class="fw7 sm">{{ app.student.name }}</div><div class="xs muted">{{ app.job.position }} · {{ app.applied_at|date:"M d, Y" }}</div></div>
+          <div class="av av-sm" style="background:linear-gradient(135deg,var(--sky),var(--peach));color:var(--blue2);">{{ app.student_name|slice:":2"|upper }}</div>
+          <div><div class="fw7 sm">{{ app.student_name }}</div><div class="xs muted">{{ app.job_position }} · {{ app.applied_at|date:"M d, Y" }}</div></div>
         </div>
         <div class="flex aic g2">
           {% if app.status == 'accepted' %}<span class="badge badge-accepted">Accepted</span>
