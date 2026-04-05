@@ -237,17 +237,17 @@ def application_list(request):
     _log_reset()
 
     query = f"""
-    SELECT 
-        a.id,
+    SELECT
+        a.app_id,
         s.name AS student,
-        j.title AS position,
+        j.position AS position,
         c.name AS company,
         a.applied_at,
         a.status
     FROM {T_APPLICATION} a
-    JOIN placement_student s ON a.student_id = s.id
-    JOIN placement_job j ON a.job_id = j.id
-    JOIN placement_company c ON j.company_id = c.id
+    JOIN placement_student s ON a.student_id = s.student_id
+    JOIN placement_job j ON a.job_id = j.job_id
+    JOIN placement_company c ON j.company_id = c.company_id
     ORDER BY a.applied_at DESC
     """
 
