@@ -43,7 +43,7 @@
       <div class="tbl-wrap"><table>
         <thead><tr><th>Student</th><th>Position</th><th>Status</th></tr></thead>
         <tbody>{% for app in applications %}<tr>
-          <td class="fw7 sm">{{ app.student.name }}</td><td class="sm">{{ app.job.position }}</td>
+          <td class="fw7 sm">{{ app.name }}</td><td class="sm">{{ app.position }}</td>
           <td>{% if app.status == 'accepted' %}<span class="badge badge-accepted">Accepted</span>{% elif app.status == 'rejected' %}<span class="badge badge-rejected">Rejected</span>{% else %}<span class="badge badge-pending">Pending</span>{% endif %}</td>
         </tr>{% endfor %}</tbody>
       </table></div>

@@ -71,8 +71,6 @@ class QueryList(list):
         return len(self)
 
 def _rows_to_querylist(rows):
-    for i in QueryList(DictObj(r) for r in rows):
-        print((i.name))
     return QueryList(DictObj(r) for r in rows)
 
 def home(request):
