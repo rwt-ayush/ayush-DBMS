@@ -1,0 +1,206 @@
+{% extends "placement/base.html" %}
+{% block title %}SQL Explorer — PlaceBloom{% endblock %}
+{% block nsql %}active{% endblock %}
+{% block page_title %}SQL Explorer{% endblock %}
+{% block page_sub %}Run raw SQL queries directly on the database{% endblock %}
+
+{% block head %}
+<style>
+  /* ── Editor card ─────────────────────────────────────────── */
+  .sql-editor-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: var(--shadow); margin-bottom: 24px;
+  }
+  .sql-editor-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; background: var(--bg2);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .sql-editor-topbar span { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+
+  textarea#sql-input {
+    width: 100%; box-sizing: border-box;
+    min-height: 140px; padding: 16px 18px;
+    background: #0d1117; color: #e6edf3;
+    font-family: 'DM Mono', monospace; font-size: 13.5px; line-height: 1.7;
+    border: none; outline: none; resize: vertical;
+    border-bottom: 1.5px solid var(--border);
+  }
+  textarea#sql-input::placeholder { color: #484f58; }
+
+  .sql-action-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; flex-wrap: wrap;
+  }
+  .btn-run {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 22px; border-radius: 10px; font-size: 13px; font-weight: 700;
+    background: linear-gradient(135deg, var(--blue), var(--lav2));
+    color: #fff; border: none; cursor: pointer;
+    box-shadow: 0 2px 10px rgba(46,134,222,.25); transition: opacity .15s;
+  }
+  .btn-run:hover { opacity: .88; }
+  .btn-clear {
+    padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    background: var(--bg2); color: var(--text2);
+    border: 1.5px solid var(--border); cursor: pointer; transition: background .15s;
+  }
+  .btn-clear:hover { background: var(--border); }
+
+  .preset-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-left: 8px; }
+  .preset-btn {
+    padding: 6px 13px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    background: var(--sky); color: var(--blue2);
+    border: 1.5px solid var(--sky2); cursor: pointer; white-space: nowrap; transition: background .15s;
+  }
+  .preset-btn:hover { background: var(--sky2); }
+
+  /* ── Results area ────────────────────────────────────────── */
+  .results-card {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .results-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 18px; background: var(--bg2);
+    border-bottom: 1.5px solid var(--border);
+  }
+  .results-header span { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; }
+  .results-meta { font-size: 12px; color: var(--text3); }
+
+  .results-body { padding: 0; overflow-x: auto; }
+
+  /* error box */
+  .sql-error {
+    margin: 16px; padding: 14px 16px;
+    background: linear-gradient(135deg,#ffe0dc,#fff0ee);
+    border: 1.5px solid #ffbfb8; border-radius: 10px;
+    color: var(--coral2); font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.6;
+  }
+  .sql-empty { padding: 40px; text-align: center; color: var(--text3); font-size: 13px; }
+  .sql-empty i { font-size: 32px; display: block; margin-bottom: 10px; opacity: .3; }
+
+  /* executed query display */
+  .exec-query {
+    margin: 14px 18px 0;
+    padding: 10px 14px;
+    background: #0d1117; border: 1px solid #30363d; border-radius: 8px;
+    font-family: 'DM Mono', monospace; font-size: 12px; color: #58a6ff; line-height: 1.6;
+    word-break: break-all;
+  }
+
+  /* rows count pill */
+  .rows-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+    background: var(--sky); color: var(--blue2); border: 1px solid var(--sky2);
+  }
+  .rows-pill.green { background: linear-gradient(135deg,#c8f5e8,#ddfaf0); color: var(--mint2); border-color: #9de8cf; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Presets strip ──────────────────────────────────────────── -->
+<div style="margin-bottom:18px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+  <span class="preset-label">Quick queries:</span>
+  {% for p in presets %}
+  <button class="preset-btn" onclick="setQuery({{ p.sql|escapejs|safe|pprint }})">{{ p.label }}</button>
+  {% endfor %}
+</div>
+
+<!-- ── Editor ────────────────────────────────────────────────── -->
+<div class="sql-editor-card">
+  <div class="sql-editor-topbar">
+    <span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span> query.sql</span>
+    <span style="font-size:11px; color:var(--text3);">SQLite · {{ db_name }}</span>
+  </div>
+  <form method="post" action="{% url 'placement:sql_explorer' %}">
+    {% csrf_token %}
+    <textarea id="sql-input" name="query" placeholder="SELECT * FROM placement_student WHERE skills LIKE '%Python%';">{{ query }}</textarea>
+    <div class="sql-action-row">
+      <button type="submit" class="btn-run"><i class="fas fa-play"></i> Run Query</button>
+      <button type="button" class="btn-clear" onclick="document.getElementById('sql-input').value=''"><i class="fas fa-trash-alt"></i> Clear</button>
+    </div>
+  </form>
+</div>
+
+<!-- ── Results ───────────────────────────────────────────────── -->
+<div class="results-card">
+  <div class="results-header">
+    <span><i class="fas fa-table" style="margin-right:6px;"></i>Results</span>
+    {% if rows is not None %}
+      {% if error %}
+        <span class="rows-pill" style="background:linear-gradient(135deg,#ffe0dc,#fff0ee);color:var(--coral2);border-color:#ffbfb8;">Error</span>
+      {% elif affected is not None %}
+        <span class="rows-pill green"><i class="fas fa-check"></i> {{ affected }} row(s) affected</span>
+      {% else %}
+        <span class="rows-pill">{{ rows|length }} row{{ rows|length|pluralize }}</span>
+      {% endif %}
+    {% else %}
+      <span class="results-meta">Run a query to see results</span>
+    {% endif %}
+  </div>
+
+  {% if query and rows is not None %}
+    <div class="exec-query">▶ {{ query }}</div>
+  {% endif %}
+
+  <div class="results-body">
+    {% if error %}
+      <div class="sql-error"><i class="fas fa-exclamation-triangle"></i>&nbsp; {{ error }}</div>
+    {% elif affected is not None %}
+      <div class="sql-empty"><i class="fas fa-check-circle" style="opacity:.6;color:var(--mint);"></i>Query executed successfully.</div>
+    {% elif rows is not None and columns %}
+      <div class="tbl-wrap" style="padding:0 0 4px;">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              {% for col in columns %}<th>{{ col }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr>
+              <td class="muted mono">{{ forloop.counter }}</td>
+              {% for cell in row %}<td>{% if cell is None %}<span class="muted mono">NULL</span>{% else %}{{ cell }}{% endif %}</td>{% endfor %}
+            </tr>
+            {% empty %}
+            <tr><td colspan="{{ columns|length|add:1 }}" class="sql-empty">No rows returned.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% elif rows is not None %}
+      <div class="sql-empty"><i class="fas fa-inbox"></i>No rows returned.</div>
+    {% else %}
+      <div class="sql-empty"><i class="fas fa-database"></i>Write a SQL query above and click <strong>Run Query</strong>.</div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Preset queries
+  const PRESETS = {
+    {% for p in presets %}"{{ p.label }}": `{{ p.sql }}`,{% endfor %}
+  };
+  function setQuery(sql) {
+    document.getElementById('sql-input').value = sql;
+  }
+
+  // Map preset button clicks by label text
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sql = PRESETS[btn.textContent.trim()];
+      if (sql) document.getElementById('sql-input').value = sql;
+    });
+  });
+</script>
+{% endblock %}
