@@ -235,8 +235,26 @@ def job_create(request):
 
 def application_list(request):
     _log_reset()
-    applications = _rows_to_querylist(raw_fetchall(f"SELECT * FROM {T_APPLICATION} ORDER BY applied_at DESC"))
-    return render(request, 'placement/application_list.html', _ctx({'applications': applications}))
+
+    query = f"""
+    SELECT 
+        a.id,
+        s.name AS student,
+        j.title AS position,
+        c.name AS company,
+        a.applied_at,
+        a.status
+    FROM {T_APPLICATION} a
+    JOIN placement_student s ON a.student_id = s.id
+    JOIN placement_job j ON a.job_id = j.id
+    JOIN placement_company c ON j.company_id = c.id
+    ORDER BY a.applied_at DESC
+    """
+
+    applications = _rows_to_querylist(raw_fetchall(query))
+
+    return render(request, 'placement/application_list.html',
+                  _ctx({'applications': applications}))
 
 def application_create(request, job_id=None):
     _log_reset()
