@@ -22,4 +22,5 @@ urlpatterns = [
     path('company/applications/<int:app_id>/<str:action>/', views.company_application_action, name='company_application_action'),
     path('companies/', views.companies, name='companies'),
     path('companies/<int:company_id>/', views.companies, name='company_detail'),
+    path('sql/', views.sql_explorer, name='sql_explorer'),
 ]
