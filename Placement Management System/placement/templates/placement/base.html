@@ -416,6 +416,8 @@
     <div class="nav-section">Recruitment</div>
     <a href="{% url 'placement:job_list' %}" class="nav-item {% block njobs %}{% endblock %}"><i class="fas fa-clipboard-list"></i> Job Listings</a>
     <a href="{% url 'placement:application_list' %}" class="nav-item {% block napps %}{% endblock %}"><i class="fas fa-file-alt"></i> Applications</a>
+    <div class="nav-section">Developer</div>
+    <a href="{% url 'placement:sql_explorer' %}" class="nav-item {% block nsql %}{% endblock %}"><i class="fas fa-terminal"></i> SQL Explorer</a>
   </div>
   <div class="sidebar-foot">
     <div class="flex aic g2"><span class="pulse"></span> <span>System Online</span></div>
@@ -482,5 +484,96 @@
   cw(); window.addEventListener('resize', cw);
 </script>
 {% block scripts %}{% endblock %}
+
+{% if sql_queries %}
+<!-- ── SQL Query Panel ─────────────────────────────────────── -->
+<style>
+  #sql-panel {
+    position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+    width: 480px; max-width: calc(100vw - 32px);
+    background: #0d1117; border: 1px solid #30363d;
+    border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    font-family: 'DM Mono', monospace; font-size: 12px; color: #e6edf3;
+    overflow: hidden;
+  }
+  #sql-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: #161b22; border-bottom: 1px solid #30363d;
+    cursor: pointer; user-select: none;
+  }
+  #sql-header span { font-weight: 600; font-size: 13px; color: #58a6ff; letter-spacing: .4px; }
+  #sql-header .badge {
+    background: #1f6feb; color: #fff; border-radius: 20px;
+    padding: 1px 8px; font-size: 11px; margin-left: 8px;
+  }
+  #sql-toggle { background: none; border: none; color: #8b949e; font-size: 16px; cursor: pointer; padding: 0 4px; }
+  #sql-body { max-height: 340px; overflow-y: auto; padding: 10px; }
+  #sql-body::-webkit-scrollbar { width: 6px; }
+  #sql-body::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+  .sql-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    padding: 7px 8px; border-radius: 6px; margin-bottom: 5px;
+    background: #161b22; border: 1px solid #21262d;
+  }
+  .sql-num {
+    min-width: 20px; height: 20px; border-radius: 50%;
+    background: #1f6feb; color: #fff; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sql-text { color: #e6edf3; line-height: 1.5; word-break: break-all; }
+  .kw { color: #ff7b72; font-weight: 600; }   /* SQL keywords */
+  .val { color: #a5d6ff; }                     /* values / literals */
+  .tbl { color: #7ee787; }                     /* table names */
+</style>
+
+<div id="sql-panel">
+  <div id="sql-header" onclick="toggleSql()">
+    <span>🗄 SQL Queries <span class="badge">{{ sql_queries|length }}</span></span>
+    <button id="sql-toggle">▲</button>
+  </div>
+  <div id="sql-body">
+    {% for q in sql_queries %}
+    <div class="sql-item">
+      <div class="sql-num">{{ forloop.counter }}</div>
+      <div class="sql-text" id="sql-raw-{{ forloop.counter }}" style="display:none">{{ q }}</div>
+      <div class="sql-text" id="sql-hi-{{ forloop.counter }}"></div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  // Syntax highlight
+  function highlight(sql) {
+    const keywords = ['SELECT','FROM','WHERE','INSERT','INTO','VALUES','UPDATE','SET',
+      'DELETE','INNER JOIN','LEFT JOIN','ON','ORDER BY','GROUP BY','HAVING','LIMIT',
+      'COUNT','AND','OR','NOT','NULL','DATE','CURRENT_TIMESTAMP','DISTINCT','AS'];
+    let s = sql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    keywords.forEach(kw => {
+      s = s.replace(new RegExp('\\b' + kw + '\\b', 'gi'),
+        m => `<span class="kw">${m.toUpperCase()}</span>`);
+    });
+    // quoted strings and numbers as values
+    s = s.replace(/'([^']*)'/g, `<span class="val">'$1'</span>`);
+    s = s.replace(/\b(\d+)\b/g, `<span class="val">$1</span>`);
+    // table names (placement_*)
+    s = s.replace(/\bplacement_\w+/g, m => `<span class="tbl">${m}</span>`);
+    return s;
+  }
+
+  document.querySelectorAll('[id^="sql-raw-"]').forEach(el => {
+    const n = el.id.replace('sql-raw-','');
+    document.getElementById('sql-hi-' + n).innerHTML = highlight(el.textContent.trim());
+  });
+
+  let open = true;
+  function toggleSql() {
+    open = !open;
+    document.getElementById('sql-body').style.display = open ? '' : 'none';
+    document.getElementById('sql-toggle').textContent  = open ? '▲' : '▼';
+  }
+</script>
+{% endif %}
+
 </body>
 </html>
