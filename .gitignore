@@ -1,0 +1,86 @@
+# =========================
+# GENERAL
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+
+# =========================
+# NODE / REACT
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build outputs
+build/
+dist/
+
+# environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# cache
+.cache/
+.next/
+.vite/
+
+# =========================
+# PYTHON
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# logs
+*.log
+
+# test / coverage
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# type checkers
+.mypy_cache/
+.pyre/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =========================
+# DATABASE
+# =========================
+#*.sqlite3
+#*.db
+
+# =========================
+# IDE / EDITOR
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
