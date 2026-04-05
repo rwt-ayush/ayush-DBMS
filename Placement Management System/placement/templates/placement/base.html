@@ -529,9 +529,9 @@
 <div id="sql-panel">
   <div id="sql-header" onclick="toggleSql()">
     <span>🗄 SQL Queries <span class="badge">{{ sql_queries|length }}</span></span>
-    <button id="sql-toggle">▲</button>
+    <button id="sql-toggle">▼</button>
   </div>
-  <div id="sql-body">
+  <div id="sql-body" style="display:none;">
     {% for q in sql_queries %}
     <div class="sql-item">
       <div class="sql-num">{{ forloop.counter }}</div>
@@ -566,7 +566,7 @@
     document.getElementById('sql-hi-' + n).innerHTML = highlight(el.textContent.trim());
   });
 
-  let open = true;
+  let open = false;
   function toggleSql() {
     open = !open;
     document.getElementById('sql-body').style.display = open ? '' : 'none';
