@@ -188,7 +188,17 @@ def company_dashboard(request):
         raise Http404("Company not found")
     company = DictObj(company_row)
     jobs = _rows_to_querylist(raw_fetchall(f"SELECT * FROM {T_JOB} WHERE company_id = %s", [company.company_id]))
-    applications = _rows_to_querylist(raw_fetchall(f"SELECT a.* FROM {T_APPLICATION} a INNER JOIN {T_JOB} j ON a.job_id = j.job_id WHERE j.company_id = %s", [company.company_id]))
+    applications = _rows_to_querylist(raw_fetchall(f"""
+        SELECT
+            a.*,
+            s.name  AS student_name,
+            s.roll_no AS student_roll_no,
+            j.position AS job_position
+        FROM {T_APPLICATION} a
+        INNER JOIN {T_JOB} j     ON a.job_id     = j.job_id
+        INNER JOIN {T_STUDENT} s ON a.student_id = s.student_id
+        WHERE j.company_id = %s
+    """, [company.company_id]))
     apps_by_status = {'pending': sum(1 for a in applications if a.status == 'pending'), 'accepted': sum(1 for a in applications if a.status == 'accepted'), 'rejected': sum(1 for a in applications if a.status == 'rejected')}
     job_stats = []
     for job in jobs:
@@ -222,10 +232,13 @@ def student_create(request):
 def job_list(request):
     _log_reset()
     jobs = _rows_to_querylist(raw_fetchall(f"""
-        SELECT j.*, c.name AS company_name, ps.section_name
+        SELECT j.*, c.name AS company_name, ps.section_name,
+               COUNT(a.app_id) AS applicant_count
         FROM {T_JOB} j
         INNER JOIN {T_COMPANY} c ON j.company_id = c.company_id
         LEFT JOIN {T_SECTION} ps ON j.section_id = ps.section_id
+        LEFT JOIN {T_APPLICATION} a ON j.job_id = a.job_id
+        GROUP BY j.job_id
         ORDER BY j.job_id DESC
     """))
     return render(request, 'placement/job_list.html', _ctx({'jobs': jobs}))
