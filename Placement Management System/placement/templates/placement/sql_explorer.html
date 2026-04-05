@@ -120,7 +120,7 @@
   </div>
   <form method="post" action="{% url 'placement:sql_explorer' %}">
     {% csrf_token %}
-    <textarea id="sql-input" name="query" placeholder="SELECT * FROM placement_student WHERE skills LIKE '%Python%';">{{ query }}</textarea>
+    <textarea id="sql-input" name="query" placeholder="SELECT * FROM placement_student WHERE skills LIKE '%Python%';">{{ query|safe }}</textarea>
     <div class="sql-action-row">
       <button type="submit" class="btn-run"><i class="fas fa-play"></i> Run Query</button>
       <button type="button" class="btn-clear" onclick="document.getElementById('sql-input').value=''"><i class="fas fa-trash-alt"></i> Clear</button>
